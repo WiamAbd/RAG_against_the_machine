@@ -13,7 +13,7 @@ def discover_files(raw_directory: str) -> list[Path]:
     files: list[Path] = []
 
     for path in root.rglob("*"):
-        if path.is_file() and path.suffix.lower() in {".py", ".md", ".txt"}:
+        if path.is_file() and path.suffix.lower() in {".py", ".md"}:
             files.append(path)
 
     return sorted(files)
