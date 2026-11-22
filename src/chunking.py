@@ -2,7 +2,8 @@
 
 from .models import Chunk
 import ast
-
+from pathlib import Path
+from time import perf_counter
 def create_chunk(
     file_path: str,
     text: str,
@@ -22,7 +23,10 @@ def chunk_text(
     text: str,
     max_chunk_size: int = 2000,
 ) -> list[Chunk]:
-    """Split text into chunks, preferring paragraph and line boundaries."""
+    """Split text while avoiding unnecessarily short intermediate chunks."""
+    if type(max_chunk_size) is not int:
+        raise ValueError("max_chunk_size must be an integer.")
+
     if not 1 <= max_chunk_size <= 2000:
         raise ValueError("max_chunk_size must be between 1 and 2000.")
 
@@ -33,14 +37,16 @@ def chunk_text(
         end = min(start + max_chunk_size, len(text))
 
         if end < len(text):
+            minimum_end = start + max(1, max_chunk_size // 2)
+
             paragraph = text.rfind("\n\n", start, end)
 
-            if paragraph > start:
+            if paragraph >= minimum_end:
                 end = paragraph + 2
             else:
                 line = text.rfind("\n", start, end)
 
-                if line > start:
+                if line >= minimum_end:
                     end = line + 1
 
         chunks.append(create_chunk(file_path, text, start, end))
@@ -113,3 +119,123 @@ def chunk_python(
             start = end
 
     return chunks
+
+def merge_small_chunks(
+    chunks: list[Chunk],
+    max_chunk_size: int = 2000,
+    min_chunk_size: int = 200,
+) -> list[Chunk]:
+    """Merge adjacent chunks when either is short and their total fits."""
+    if type(max_chunk_size) is not int or type(min_chunk_size) is not int:
+        raise ValueError("Chunk sizes must be integers.")
+
+    if not 1 <= min_chunk_size <= max_chunk_size <= 2000:
+        raise ValueError(
+            "Sizes must satisfy: 1 <= min_chunk_size "
+            "<= max_chunk_size <= 2000."
+        )
+
+    merged: list[Chunk] = []
+
+    for chunk in chunks:
+        if merged:
+            previous = merged[-1]
+
+            same_file = previous.file_path == chunk.file_path
+            adjacent = (
+                previous.last_character_index
+                == chunk.first_character_index
+            )
+            either_short = (
+                len(previous.text) < min_chunk_size
+                or len(chunk.text) < min_chunk_size
+            )
+            fits = (
+                len(previous.text) + len(chunk.text)
+                <= max_chunk_size
+            )
+
+            if same_file and adjacent and either_short and fits:
+                merged[-1] = Chunk(
+                    file_path=previous.file_path,
+                    first_character_index=previous.first_character_index,
+                    last_character_index=chunk.last_character_index,
+                    text=previous.text + chunk.text,
+                )
+                continue
+
+        merged.append(chunk)
+
+    return merged
+
+def chunk_documents(
+    documents: list[dict[str, str]],
+    max_chunk_size: int = 2000,
+    min_chunk_size: int = 200,
+) -> list[Chunk]:
+    """Chunk Python and Markdown documents and merge short neighbors."""
+    if type(max_chunk_size) is not int or type(min_chunk_size) is not int:
+        raise ValueError("Chunk sizes must be integers.")
+
+    if not 1 <= min_chunk_size <= max_chunk_size <= 2000:
+        raise ValueError(
+            "Sizes must satisfy: 1 <= min_chunk_size "
+            "<= max_chunk_size <= 2000."
+        )
+
+    all_chunks: list[Chunk] = []
+
+    for document in documents:
+        file_path = document["file_path"]
+        text = document["text"]
+        extension = Path(file_path).suffix.lower()
+
+        if extension == ".py":
+            chunks = chunk_python(file_path, text, max_chunk_size)
+        elif extension == ".md":
+            chunks = chunk_text(file_path, text, max_chunk_size)
+        else:
+            continue
+
+        chunks = merge_small_chunks(
+            chunks,
+            max_chunk_size=max_chunk_size,
+            min_chunk_size=min_chunk_size,
+        )
+
+        all_chunks.extend(chunks)
+
+    return all_chunks
+
+if __name__ == "__main__":
+    from .read_files import load_documents
+
+    try:
+        start = perf_counter()
+
+        documents = load_documents("data/raw")
+        reading_end = perf_counter()
+
+        chunks = chunk_documents(documents)
+        chunking_end = perf_counter()
+
+        print(f"Loaded {len(documents)} documents.")
+        print(f"Created {len(chunks)} chunks.")
+        print(f"Reading: {reading_end - start:.2f} seconds")
+        print(f"Chunking: {chunking_end - reading_end:.2f} seconds")
+        print(f"Total: {(chunking_end - start)/60:.2f} minutes")
+
+        for chunk in chunks[:5]:
+            print(
+                chunk.file_path,
+                chunk.first_character_index,
+                chunk.last_character_index,
+                f"{len(chunk.text)} characters",
+            )
+
+        assert all(0 < len(chunk.text) <= 2000 for chunk in chunks)
+
+        print("All chunk sizes are valid.")
+
+    except Exception as error:
+        print(f"Error: {error}")

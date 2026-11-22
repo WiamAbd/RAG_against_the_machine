@@ -82,3 +82,18 @@ class Small_LLM_Model:
             answer_ids,
             skip_special_tokens=True,
         )
+    
+    def count_prompt_tokens(self, prompt: str) -> int:
+        """Count input tokens, including Qwen's chat template."""
+        messages = [{"role": "user", "content": prompt}]
+
+        inputs = self._tokenizer.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            enable_thinking=False,
+            return_dict=True,
+            return_tensors="pt",
+        )
+
+        return inputs["input_ids"].shape[1]
