@@ -1,21 +1,29 @@
-"""Connect retrieval and answer generation."""
+"""Connect retrieval, prompt construction, and answer generation."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from tqdm import tqdm
 
 from .models import (
     Chunk,
     MinimalAnswer,
     MinimalSource,
-    UnansweredQuestion,
     StudentSearchResults,
     StudentSearchResultsAndAnswer,
+    UnansweredQuestion,
 )
-from collections.abc import Callable
-from pathlib import Path
 from .read_files import read_file
-from tqdm import tqdm
-    
+
+if TYPE_CHECKING:
+    from .llm import Small_LLM_Model
+
 
 def build_prompt(question: str, chunks: list[Chunk]) -> str:
-    """Build a grounded question-answering prompt from retrieved chunks."""
+    """Build a grounded answering prompt from retrieved chunks."""
     if not isinstance(question, str) or not question.strip():
         raise ValueError("question must be a nonempty string.")
 
@@ -47,11 +55,13 @@ def build_prompt(question: str, chunks: list[Chunk]) -> str:
         "and explain what is missing. If they provide no answer, "
         "say you don't know based on the provided passages.\n"
         "Keep the answer concise. Cite supporting passages using "
-        "[Source 1], [Source 2], etc. A citation must not replace the answer.\n\n"
+        "[Source 1], [Source 2], etc. "
+        "A citation must not replace the answer.\n\n"
         f"PASSAGES:\n{context}\n\n"
         f"QUESTION: {question}\n\n"
         "ANSWER:"
     )
+
 
 def prepare_prompt(
     question: str,
@@ -59,7 +69,7 @@ def prepare_prompt(
     count_tokens: Callable[[str], int],
     max_input_tokens: int = 4096,
 ) -> tuple[str, list[Chunk]]:
-    """Build a prompt that fits the budget, removing lowest-ranked chunks."""
+    """Fit the prompt budget by removing lowest-ranked chunks."""
     if type(max_input_tokens) is not int or max_input_tokens < 1:
         raise ValueError("max_input_tokens must be a positive integer.")
 
@@ -77,30 +87,33 @@ def prepare_prompt(
         "Cannot fit a source chunk and the question within the input budget."
     )
 
+
 def answer_question(
     question: UnansweredQuestion,
     chunks: list[Chunk],
-    llm,
+    llm: Small_LLM_Model,
     max_new_tokens: int = 200,
 ) -> MinimalAnswer:
     """Generate an answer using already-retrieved chunks."""
     if type(max_new_tokens) is not int or max_new_tokens < 1:
         raise ValueError("max_new_tokens must be a positive integer.")
 
+    if not question.question.strip():
+        raise ValueError("question must be a nonempty string.")
+
     if not chunks:
         return MinimalAnswer(
             question_id=question.question_id,
             question=question.question,
             retrieved_sources=[],
-            answer="No source excerpts were retrieved to answer this question.",
+            answer=(
+                "No source excerpts were retrieved "
+                "to answer this question."
+            ),
         )
 
     context_limit = llm._model.config.max_position_embeddings
-
-    input_budget = min(
-        4096,
-        context_limit - max_new_tokens,
-    )
+    input_budget = min(4096, context_limit - max_new_tokens)
 
     if input_budget < 1:
         raise ValueError(
@@ -135,10 +148,11 @@ def answer_question(
         answer=answer,
     )
 
+
 def load_source_chunks(
     sources: list[MinimalSource],
 ) -> list[Chunk]:
-    """Read the original text covered by saved source locations."""
+    """Read original text covered by saved source locations."""
     chunks: list[Chunk] = []
     file_texts: dict[str, str] = {}
 
@@ -171,12 +185,14 @@ def load_source_chunks(
         )
 
     return chunks
+
+
 def generate_dataset_answers(
     results: StudentSearchResults,
-    llm,
+    llm: Small_LLM_Model,
     max_new_tokens: int = 200,
 ) -> StudentSearchResultsAndAnswer:
-    """Generate answers from saved retrieval results without searching again."""
+    """Generate answers from saved results without searching again."""
     if type(max_new_tokens) is not int or max_new_tokens < 1:
         raise ValueError("max_new_tokens must be a positive integer.")
 
@@ -206,41 +222,38 @@ def generate_dataset_answers(
         search_results=answers,
         k=results.k,
     )
+
+
+
+
+
 if __name__ == "__main__":
-    from .datasets import load_search_results
+    from .indexer import load_index
     from .llm import Small_LLM_Model
+    from .retriever import retrieve
 
-    results = load_search_results(
-        "data/output/search_results/UnansweredQuestions/"
-        "dataset_docs_public.json"
+    question = UnansweredQuestion(
+        question=(
+            "What datatypes are supported by "
+            "vLLM's ARM CPU backend?"
+        )
     )
 
-    small_batch = StudentSearchResults(
-        search_results=results.search_results[:2],
-        k=results.k,
+    index, chunks = load_index()
+
+    retrieved_chunks = retrieve(
+        query=question.question,
+        index=index,
+        chunks=chunks,
+        k=5,
     )
 
-    print("Loading Qwen...")
     llm = Small_LLM_Model()
 
-    answers = generate_dataset_answers(
-        results=small_batch,
+    result = answer_question(
+        question=question,
+        chunks=retrieved_chunks,
         llm=llm,
     )
 
-    print(answers.model_dump_json(indent=2))
-
-    assert len(answers.search_results) == len(small_batch.search_results)
-
-    assert [
-        answer.question_id for answer in answers.search_results
-    ] == [
-        result.question_id for result in small_batch.search_results
-    ]
-
-    assert all(
-        answer.answer.strip()
-        for answer in answers.search_results
-    )
-
-    print("Batch answer checks passed.")
+    print(result.model_dump_json(indent=2))

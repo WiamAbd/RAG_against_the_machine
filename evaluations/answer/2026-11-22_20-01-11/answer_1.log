@@ -1,0 +1,47 @@
+{
+  "question_id": "6a8f71d1-8426-44b7-a9dc-8ae2f4f9cbef",
+  "question": "What Python packages need to be installed to use vLLM with LangChain?",
+  "retrieved_sources": [
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/serving/integrations/langchain.md",
+      "first_character_index": 0,
+      "last_character_index": 788
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/vllm/utils/__init__.py",
+      "first_character_index": 103500,
+      "last_character_index": 105048
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/retrieval_augmented_generation.md",
+      "first_character_index": 0,
+      "last_character_index": 1803
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/models/pooling_models.md",
+      "first_character_index": 5217,
+      "last_character_index": 7098
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/examples/online_serving/retrieval_augmented_generation_with_langchain.py",
+      "first_character_index": 0,
+      "last_character_index": 1722
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/getting_started/installation/gpu/cuda.inc.md",
+      "first_character_index": 4817,
+      "last_character_index": 6746
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/design/plugin_system.md",
+      "first_character_index": 0,
+      "last_character_index": 1834
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/contributing/incremental_build.md",
+      "first_character_index": 4125,
+      "last_character_index": 6081
+    }
+  ],
+  "answer": "To use vLLM with LangChain, the following Python packages need to be installed:\n\n- `vllm`\n- `langchain_milvus`\n- `langchain_openai`\n- `langchain_community`\n- `beautifulsoup4`\n- `langchain-text-splitters`"
+}

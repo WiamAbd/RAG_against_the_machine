@@ -3,3 +3,6 @@
 .venv/
 __pycache__/
 /datasets_public/
+/moulinette/
+/exams/
+/datasets_private/

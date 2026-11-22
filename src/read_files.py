@@ -1,7 +1,7 @@
 """Discover and read repository files."""
 
 from pathlib import Path
-
+from tqdm import tqdm
 
 def discover_files(raw_directory: str) -> list[Path]:
     """Find Python, Markdown, and text files inside a directory."""
@@ -28,7 +28,7 @@ def load_documents(raw_directory: str) -> list[dict[str, str]]:
     files = discover_files(raw_directory)
     documents: list[dict[str, str]] = []
 
-    for file_path in files:
+    for file_path in tqdm(files, desc="Reading files", unit="file"):
         try:
             text = read_file(file_path)
         except (OSError, UnicodeError) as error:

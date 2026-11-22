@@ -3,6 +3,7 @@
 from .models import Chunk
 import ast
 from pathlib import Path
+from tqdm import tqdm
 from time import perf_counter
 def create_chunk(
     file_path: str,
@@ -22,13 +23,26 @@ def chunk_text(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
+    overlap_size: int | None = None,
 ) -> list[Chunk]:
-    """Split text while avoiding unnecessarily short intermediate chunks."""
+    """Split text into overlapping chunks with original character offsets."""
     if type(max_chunk_size) is not int:
         raise ValueError("max_chunk_size must be an integer.")
 
     if not 1 <= max_chunk_size <= 2000:
         raise ValueError("max_chunk_size must be between 1 and 2000.")
+
+    # Default: 20% overlap, capped at 200 characters.
+    if overlap_size is None:
+        overlap_size = min(200, max_chunk_size // 5)
+
+    if type(overlap_size) is not int:
+        raise ValueError("overlap_size must be an integer.")
+
+    if not 0 <= overlap_size < max_chunk_size:
+        raise ValueError(
+            "overlap_size must be between 0 and max_chunk_size - 1."
+        )
 
     chunks: list[Chunk] = []
     start = 0
@@ -37,7 +51,11 @@ def chunk_text(
         end = min(start + max_chunk_size, len(text))
 
         if end < len(text):
-            minimum_end = start + max(1, max_chunk_size // 2)
+            # Avoid short chunks and guarantee progress after overlap.
+            minimum_end = start + max(
+                max_chunk_size // 2,
+                overlap_size + 1,
+            )
 
             paragraph = text.rfind("\n\n", start, end)
 
@@ -50,7 +68,11 @@ def chunk_text(
                     end = line + 1
 
         chunks.append(create_chunk(file_path, text, start, end))
-        start = end
+
+        if end == len(text):
+            break
+
+        start = end - overlap_size
 
     return chunks
 
@@ -185,7 +207,11 @@ def chunk_documents(
 
     all_chunks: list[Chunk] = []
 
-    for document in documents:
+    for document in tqdm(
+        documents,
+        desc="Chunking documents",
+        unit="file",
+    ):
         file_path = document["file_path"]
         text = document["text"]
         extension = Path(file_path).suffix.lower()
