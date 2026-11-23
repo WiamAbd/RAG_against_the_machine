@@ -76,19 +76,29 @@ def chunk_text(
 
     return chunks
 
+
 def chunk_python(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
+    overlap_size: int = 200,
 ) -> list[Chunk]:
-    """Split Python at top-level definitions and respect the size limit."""
+    """Split Python at top-level definitions, overlapping oversized sections."""
+
     if type(max_chunk_size) is not int:
         raise ValueError("max_chunk_size must be an integer.")
 
     if not 1 <= max_chunk_size <= 2000:
         raise ValueError("max_chunk_size must be between 1 and 2000.")
 
-    # Record the character position where each line begins.
+    if type(overlap_size) is not int:
+        raise ValueError("overlap_size must be an integer.")
+
+    if not 0 <= overlap_size < max_chunk_size:
+        raise ValueError(
+            "overlap_size must be between 0 and max_chunk_size - 1."
+        )
+
     line_offsets = [0]
     position = 0
 
@@ -101,7 +111,6 @@ def chunk_python(
     try:
         tree = ast.parse(text)
     except SyntaxError:
-        # If parsing fails, fall back to splitting at line boundaries.
         tree = None
 
     if tree is not None:
@@ -112,7 +121,6 @@ def chunk_python(
             ):
                 first_line = node.lineno
 
-                # Include decorators with their function or class.
                 if node.decorator_list:
                     first_line = min(
                         first_line,
@@ -134,13 +142,20 @@ def chunk_python(
             if end < section_end:
                 line_break = text.rfind("\n", start, end)
 
-                if line_break >= start:
+                if line_break > start:
                     end = line_break + 1
 
             chunks.append(create_chunk(file_path, text, start, end))
-            start = end
+
+            if end == section_end:
+                break
+
+            # Overlap within this AST section only.
+            # Ensure that the next chunk always advances.
+            start = max(start + 1, end - overlap_size)
 
     return chunks
+
 
 def merge_small_chunks(
     chunks: list[Chunk],
@@ -218,7 +233,7 @@ def chunk_documents(
 
         if extension == ".py":
             chunks = chunk_python(file_path, text, max_chunk_size)
-        elif extension == ".md":
+        elif extension in (".md", ".txt"):
             chunks = chunk_text(file_path, text, max_chunk_size)
         else:
             continue
