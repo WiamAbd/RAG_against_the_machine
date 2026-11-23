@@ -81,7 +81,7 @@ def chunk_python(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
-    overlap_size: int = 200,
+    overlap_size: int | None = None,
 ) -> list[Chunk]:
     """Split Python at top-level definitions, overlapping oversized sections."""
 
@@ -90,6 +90,9 @@ def chunk_python(
 
     if not 1 <= max_chunk_size <= 2000:
         raise ValueError("max_chunk_size must be between 1 and 2000.")
+
+    if overlap_size is None:
+        overlap_size = min(200, max_chunk_size // 5)
 
     if type(overlap_size) is not int:
         raise ValueError("overlap_size must be an integer.")
@@ -205,6 +208,72 @@ def merge_small_chunks(
 
     return merged
 
+def add_python_context(
+    text: str,
+    chunks: list[Chunk],
+) -> list[Chunk]:
+    """Attach names of Python definitions overlapping each chunk."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        # Keep the chunks searchable even if Python parsing fails.
+        return chunks
+
+    line_offsets = [0]
+
+    for line in text.splitlines(keepends=True):
+        line_offsets.append(line_offsets[-1] + len(line))
+
+    definitions: list[tuple[int, int, str, str]] = []
+
+    for node in ast.walk(tree):
+        if not isinstance(
+            node,
+            (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef),
+        ):
+            continue
+
+        if node.end_lineno is None:
+            continue
+
+        first_line = node.lineno
+
+        if node.decorator_list:
+            first_line = min(
+                first_line,
+                node.decorator_list[0].lineno,
+            )
+
+        start = line_offsets[first_line - 1]
+        end = line_offsets[node.end_lineno]
+
+        kind = "class" if isinstance(node, ast.ClassDef) else "function"
+
+        definitions.append((start, end, kind, node.name))
+
+    for chunk in chunks:
+        class_names: set[str] = set()
+        function_names: set[str] = set()
+
+        for start, end, kind, name in definitions:
+            overlaps = (
+                start < chunk.last_character_index
+                and end > chunk.first_character_index
+            )
+
+            if not overlaps:
+                continue
+
+            if kind == "class":
+                class_names.add(name)
+            else:
+                function_names.add(name)
+
+        chunk.class_names = sorted(class_names)
+        chunk.function_names = sorted(function_names)
+
+    return chunks
+
 def chunk_documents(
     documents: list[dict[str, str]],
     max_chunk_size: int = 2000,
@@ -243,7 +312,9 @@ def chunk_documents(
             max_chunk_size=max_chunk_size,
             min_chunk_size=min_chunk_size,
         )
-
+        if extension == ".py":
+            chunks = add_python_context(text, chunks)
+            
         all_chunks.extend(chunks)
 
     return all_chunks

@@ -60,6 +60,8 @@ class StudentSearchResultsAndAnswer(BaseModel):
     k: int
 
 class Chunk(MinimalSource):
-    """Represent a source location together with its text."""
+    """Represent original source text and searchable Python context."""
 
     text: str
+    class_names: list[str] = Field(default_factory=list)
+    function_names: list[str] = Field(default_factory=list)

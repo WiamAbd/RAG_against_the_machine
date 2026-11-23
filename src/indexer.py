@@ -15,10 +15,16 @@ def build_index(chunks: list[Chunk]) -> BM25Okapi:
     if not chunks:
         raise ValueError("Cannot build an index without chunks.")
 
-    tokenized_chunks = [
-        tokenize(chunk.text)
-        for chunk in chunks
-    ]
+    tokenized_chunks = []
+
+    for chunk in chunks:
+        context = " ".join(
+            chunk.class_names + chunk.function_names
+        )
+
+        searchable_text = f"{context}\n{chunk.text}"
+
+        tokenized_chunks.append(tokenize(searchable_text))
 
     if not any(tokenized_chunks):
         raise ValueError("The chunks contain no searchable terms.")

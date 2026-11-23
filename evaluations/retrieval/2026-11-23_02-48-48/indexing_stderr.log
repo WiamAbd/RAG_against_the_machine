@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/__main__.py", line 23, in <module>
+    main()
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/__main__.py", line 13, in main
+    fire.Fire(RagCLI)
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 135, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 468, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 684, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/cli.py", line 33, in index
+    documents = load_documents("data/raw")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/read_files.py", line 28, in load_documents
+    files = discover_files(raw_directory)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/read_files.py", line 16, in discover_files
+    if path.is_file() and path.suffix.lower() in {".py", ".md", ".txt"}:
+       ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 894, in is_file
+    return S_ISREG(self.stat().st_mode)
+                   ^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 842, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
