@@ -6,9 +6,11 @@ from .models import Chunk
 import pickle
 from pathlib import Path
 
+
 def tokenize(text: str) -> list[str]:
     """Lowercase text and extract terms, splitting at underscores."""
     return re.findall(r"[a-z0-9]+", text.lower())
+
 
 def build_index(chunks: list[Chunk]) -> BM25Okapi:
     """Build a BM25 index from chunk texts, preserving their order."""
@@ -30,6 +32,7 @@ def build_index(chunks: list[Chunk]) -> BM25Okapi:
         raise ValueError("The chunks contain no searchable terms.")
 
     return BM25Okapi(tokenized_chunks, k1=1.5, b=0.75)
+
 
 def save_index(
     index: BM25Okapi,
@@ -55,6 +58,7 @@ def save_index(
     with index_path.open("wb") as file:
         pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
 
+
 def load_index(
     index_directory: str = "data/processed",
 ) -> tuple[BM25Okapi, list[Chunk]]:
@@ -65,6 +69,7 @@ def load_index(
         data = pickle.load(file)
 
     return data["index"], data["chunks"]
+
 
 if __name__ == "__main__":
     texts = [

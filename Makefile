@@ -15,8 +15,8 @@ debug:
 	$(UV) run $(PYTHON) -m pdb -m $(SRC)
 
 lint:
-	$(UV) run flake8 . 
-	$(UV) run mypy . \
+	$(UV) run flake8 $(SRC)
+	$(UV) run mypy $(SRC) \
 		--warn-return-any \
 		--warn-unused-ignores \
 		--ignore-missing-imports \

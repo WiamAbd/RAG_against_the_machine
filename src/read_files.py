@@ -3,6 +3,7 @@
 from pathlib import Path
 from tqdm import tqdm
 
+
 def discover_files(raw_directory: str) -> list[Path]:
     """Find Python, Markdown, and text files inside a directory."""
     root = Path(raw_directory)
@@ -18,10 +19,12 @@ def discover_files(raw_directory: str) -> list[Path]:
 
     return sorted(files)
 
+
 def read_file(file_path: Path) -> str:
     """Read a UTF-8 file while preserving its original line endings."""
     with file_path.open("r", encoding="utf-8", newline="") as file:
         return file.read()
+
 
 def load_documents(raw_directory: str) -> list[dict[str, str]]:
     """Load discovered files, reporting and skipping unreadable files."""

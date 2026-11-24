@@ -5,6 +5,8 @@ import ast
 from pathlib import Path
 from tqdm import tqdm
 from time import perf_counter
+
+
 def create_chunk(
     file_path: str,
     text: str,
@@ -18,6 +20,7 @@ def create_chunk(
         last_character_index=end,
         text=text[start:end],
     )
+
 
 def chunk_text(
     file_path: str,
@@ -83,7 +86,7 @@ def chunk_python(
     max_chunk_size: int = 2000,
     overlap_size: int | None = None,
 ) -> list[Chunk]:
-    """Split Python at top-level definitions, overlapping oversized sections."""
+    """Split Python, overlapping splited fcts"""
 
     if type(max_chunk_size) is not int:
         raise ValueError("max_chunk_size must be an integer.")
@@ -208,6 +211,7 @@ def merge_small_chunks(
 
     return merged
 
+
 def add_python_context(
     text: str,
     chunks: list[Chunk],
@@ -274,6 +278,7 @@ def add_python_context(
 
     return chunks
 
+
 def chunk_documents(
     documents: list[dict[str, str]],
     max_chunk_size: int = 2000,
@@ -314,10 +319,10 @@ def chunk_documents(
         )
         if extension == ".py":
             chunks = add_python_context(text, chunks)
-            
         all_chunks.extend(chunks)
 
     return all_chunks
+
 
 if __name__ == "__main__":
     from .read_files import load_documents

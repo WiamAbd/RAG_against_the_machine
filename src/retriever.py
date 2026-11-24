@@ -15,6 +15,7 @@ from .models import (
     StudentSearchResults,
 )
 
+
 def retrieve(
     query: str,
     index: BM25Okapi,
@@ -48,6 +49,7 @@ def retrieve(
     )
 
     return [chunks[position] for position in best_positions]
+
 
 def retrieve_dataset(
     dataset: RagDataset,
@@ -93,6 +95,7 @@ def retrieve_dataset(
         search_results=search_results,
         k=k,
     )
+
 
 if __name__ == "__main__":
     from time import perf_counter

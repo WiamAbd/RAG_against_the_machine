@@ -2,7 +2,11 @@
 
 from pathlib import Path
 
-from .models import RagDataset, StudentSearchResults, StudentSearchResultsAndAnswer
+from .models import (
+    RagDataset,
+    StudentSearchResults,
+    StudentSearchResultsAndAnswer,
+)
 
 
 def load_dataset(dataset_path: str) -> RagDataset:
@@ -12,6 +16,7 @@ def load_dataset(dataset_path: str) -> RagDataset:
     text = path.read_text(encoding="utf-8")
 
     return RagDataset.model_validate_json(text)
+
 
 def save_search_results(
     results: StudentSearchResults,
@@ -31,6 +36,7 @@ def save_search_results(
 
     return output_path
 
+
 def load_search_results(
     results_path: str,
 ) -> StudentSearchResults:
@@ -38,6 +44,8 @@ def load_search_results(
     text = Path(results_path).read_text(encoding="utf-8")
 
     return StudentSearchResults.model_validate_json(text)
+
+
 def save_answers(
     results: StudentSearchResultsAndAnswer,
     student_search_results_path: str,
@@ -55,6 +63,8 @@ def save_answers(
     )
 
     return output_path
+
+
 if __name__ == "__main__":
     dataset = load_dataset(
         "datasets_public/public/UnansweredQuestions/dataset_docs_public.json"

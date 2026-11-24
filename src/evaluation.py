@@ -3,6 +3,7 @@
 from .models import MinimalSource
 from .models import AnsweredQuestion, RagDataset, StudentSearchResults
 
+
 def source_iou(
     retrieved: MinimalSource,
     reference: MinimalSource,
@@ -39,6 +40,7 @@ def source_iou(
 
     return intersection / union
 
+
 def source_matches(
     retrieved: MinimalSource,
     reference: MinimalSource,
@@ -49,6 +51,8 @@ def source_matches(
         raise ValueError("threshold must be greater than 0 and at most 1.")
 
     return source_iou(retrieved, reference) >= threshold
+
+
 def question_recall(
     retrieved_sources: list[MinimalSource],
     reference_sources: list[MinimalSource],
@@ -72,6 +76,7 @@ def question_recall(
             found += 1
 
     return found / len(reference_sources)
+
 
 def dataset_recall(
     results: StudentSearchResults,
@@ -101,18 +106,21 @@ def dataset_recall(
 
     for question in reference_dataset.rag_questions:
         if not isinstance(question, AnsweredQuestion):
-            raise ValueError("Reference questions must contain sources and answers.")
-
+            raise ValueError(
+                "Reference questions must contain sources and answers."
+            )
         if question.question_id in reference_ids:
             raise ValueError(f"Duplicate reference ID: {question.question_id}")
 
         reference_ids.add(question.question_id)
 
-        result = results_by_id.get(question.question_id)
+        matched_result = results_by_id.get(question.question_id)
 
         # Missing results count as zero recall.
         retrieved_sources = (
-            result.retrieved_sources if result is not None else []
+            matched_result.retrieved_sources
+            if matched_result is not None
+            else []
         )
 
         total_recall += question_recall(
@@ -122,6 +130,7 @@ def dataset_recall(
         )
 
     return total_recall / len(reference_dataset.rag_questions)
+
 
 if __name__ == "__main__":
     from .datasets import load_dataset, load_search_results
@@ -193,7 +202,9 @@ if __name__ == "__main__":
     )
 
     print(f"\nLoaded results for {len(results.search_results)} questions.")
-    print(f"Loaded {len(reference_dataset.rag_questions)} reference questions.")
+    print(
+        f"Loaded {len(reference_dataset.rag_questions)} reference questions."
+        )
     print(f"Saved retrieval depth: {results.k}")
 
     # Measure retrieval quality on the real dataset.

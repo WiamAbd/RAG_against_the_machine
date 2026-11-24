@@ -11,9 +11,9 @@ from .datasets import (
 )
 from .evaluation import dataset_recall
 from .models import UnansweredQuestion
-from .pipeline import answer_question
 from .datasets import save_answers
 from .pipeline import answer_question, generate_dataset_answers
+
 
 class RagCLI:
     """Expose the RAG pipeline commands."""
@@ -182,7 +182,7 @@ class RagCLI:
         print(f"\nGenerated {len(answers.search_results)} answers.")
         print(f"Answers saved to {output_path}")
         print(f"Total: {perf_counter() - start:.2f} seconds")
-    
+
     def evaluate(
         self,
         student_search_results_path: str = (

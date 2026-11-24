@@ -20,7 +20,7 @@ class UnansweredQuestion(BaseModel):
 
 
 class AnsweredQuestion(UnansweredQuestion):
-    """Represent a reference question with its answer and supporting sources."""
+    """Represent a reference question with its answer."""
 
     sources: List[MinimalSource]
     answer: str
@@ -41,23 +41,24 @@ class MinimalSearchResults(BaseModel):
 
 
 class MinimalAnswer(MinimalSearchResults):
-    """Store a generated answer alongside its question and retrieved sources."""
+    """Store a generated answer and its question and retrieved sources."""
 
     answer: str
 
 
 class StudentSearchResults(BaseModel):
-    """Contain batch retrieval results and the requested sources per question."""
+    """Contain batch retrieval results and the sources per question."""
 
     search_results: List[MinimalSearchResults]
     k: int
 
 
 class StudentSearchResultsAndAnswer(BaseModel):
-    """Contain batch retrieval results with generated answers and requested k."""
+    """batch retrieval results with generated answers and requested k."""
 
     search_results: List[MinimalAnswer]
     k: int
+
 
 class Chunk(MinimalSource):
     """Represent original source text and searchable Python context."""

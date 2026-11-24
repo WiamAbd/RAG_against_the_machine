@@ -224,12 +224,8 @@ def generate_dataset_answers(
     )
 
 
-
-
-
 if __name__ == "__main__":
     from .indexer import load_index
-    from .llm import Small_LLM_Model
     from .retriever import retrieve
 
     question = UnansweredQuestion(

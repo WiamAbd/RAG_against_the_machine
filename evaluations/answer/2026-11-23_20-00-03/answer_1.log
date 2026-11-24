@@ -1,0 +1,47 @@
+{
+  "question_id": "3a0dd915-d9ea-48fd-8fa1-9a51c73ab6c1",
+  "question": "Which vLLM features are not supported on TPU hardware?",
+  "retrieved_sources": [
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/getting_started/installation/gpu/cuda.inc.md",
+      "first_character_index": 12960,
+      "last_character_index": 14001
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/configuration/tpu.md",
+      "first_character_index": 5167,
+      "last_character_index": 7157
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/usage/v1_guide.md",
+      "first_character_index": 3125,
+      "last_character_index": 5091
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/getting_started/installation/google_tpu.md",
+      "first_character_index": 0,
+      "last_character_index": 1926
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/features/quantization/supported_hardware.md",
+      "first_character_index": 0,
+      "last_character_index": 1910
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/getting_started/installation/aws_neuron.md",
+      "first_character_index": 3453,
+      "last_character_index": 5194
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/features/quantization/supported_hardware.md",
+      "first_character_index": 1710,
+      "last_character_index": 2698
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/getting_started/installation/gpu/rocm.inc.md",
+      "first_character_index": 8542,
+      "last_character_index": 9358
+    }
+  ],
+  "answer": "The features not supported on TPU hardware are:\n\n- **FP8 (W8A8)**: ❌  \n- **AWQ**: ❌  \n- **FP4 (W4A8)**: ❌  \n- **INT8 (W8A8)**: ✅  \n\nThese features are not supported on TPU hardware."
+}
