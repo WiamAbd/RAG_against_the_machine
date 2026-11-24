@@ -222,34 +222,3 @@ def generate_dataset_answers(
         search_results=answers,
         k=results.k,
     )
-
-
-if __name__ == "__main__":
-    from .indexer import load_index
-    from .retriever import retrieve
-
-    question = UnansweredQuestion(
-        question=(
-            "What datatypes are supported by "
-            "vLLM's ARM CPU backend?"
-        )
-    )
-
-    index, chunks = load_index()
-
-    retrieved_chunks = retrieve(
-        query=question.question,
-        index=index,
-        chunks=chunks,
-        k=5,
-    )
-
-    llm = Small_LLM_Model()
-
-    result = answer_question(
-        question=question,
-        chunks=retrieved_chunks,
-        llm=llm,
-    )
-
-    print(result.model_dump_json(indent=2))

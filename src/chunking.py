@@ -4,7 +4,6 @@ from .models import Chunk
 import ast
 from pathlib import Path
 from tqdm import tqdm
-from time import perf_counter
 
 
 def create_chunk(
@@ -26,26 +25,11 @@ def chunk_text(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
-    overlap_size: int | None = None,
 ) -> list[Chunk]:
     """Split text into overlapping chunks with original character offsets."""
-    if type(max_chunk_size) is not int:
-        raise ValueError("max_chunk_size must be an integer.")
-
-    if not 1 <= max_chunk_size <= 2000:
-        raise ValueError("max_chunk_size must be between 1 and 2000.")
 
     # Default: 20% overlap, capped at 200 characters.
-    if overlap_size is None:
-        overlap_size = min(200, max_chunk_size // 5)
-
-    if type(overlap_size) is not int:
-        raise ValueError("overlap_size must be an integer.")
-
-    if not 0 <= overlap_size < max_chunk_size:
-        raise ValueError(
-            "overlap_size must be between 0 and max_chunk_size - 1."
-        )
+    overlap_size = min(200, max_chunk_size // 5)
 
     chunks: list[Chunk] = []
     start = 0
@@ -55,10 +39,7 @@ def chunk_text(
 
         if end < len(text):
             # Avoid short chunks and guarantee progress after overlap.
-            minimum_end = start + max(
-                max_chunk_size // 2,
-                overlap_size + 1,
-            )
+            minimum_end = start + max(1, max_chunk_size // 2)
 
             paragraph = text.rfind("\n\n", start, end)
 
@@ -84,27 +65,11 @@ def chunk_python(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
-    overlap_size: int | None = None,
 ) -> list[Chunk]:
-    """Split Python, overlapping splited fcts"""
+    """Split Python, overlapping oversized sections"""
 
-    if type(max_chunk_size) is not int:
-        raise ValueError("max_chunk_size must be an integer.")
-
-    if not 1 <= max_chunk_size <= 2000:
-        raise ValueError("max_chunk_size must be between 1 and 2000.")
-
-    if overlap_size is None:
-        overlap_size = min(200, max_chunk_size // 5)
-
-    if type(overlap_size) is not int:
-        raise ValueError("overlap_size must be an integer.")
-
-    if not 0 <= overlap_size < max_chunk_size:
-        raise ValueError(
-            "overlap_size must be between 0 and max_chunk_size - 1."
-        )
-
+    overlap_size = min(200, max_chunk_size // 5)
+    # find end of line character
     line_offsets = [0]
     position = 0
 
@@ -285,13 +250,12 @@ def chunk_documents(
     min_chunk_size: int = 200,
 ) -> list[Chunk]:
     """Chunk Python and Markdown documents and merge short neighbors."""
-    if type(max_chunk_size) is not int or type(min_chunk_size) is not int:
+    if type(min_chunk_size) is not int:
         raise ValueError("Chunk sizes must be integers.")
 
-    if not 1 <= min_chunk_size <= max_chunk_size <= 2000:
+    if not 1 <= min_chunk_size <= 2000:
         raise ValueError(
-            "Sizes must satisfy: 1 <= min_chunk_size "
-            "<= max_chunk_size <= 2000."
+            "Sizes must satisfy: 1 <= min_chunk_size <= 2000"
         )
 
     all_chunks: list[Chunk] = []
@@ -322,37 +286,3 @@ def chunk_documents(
         all_chunks.extend(chunks)
 
     return all_chunks
-
-
-if __name__ == "__main__":
-    from .read_files import load_documents
-
-    try:
-        start = perf_counter()
-
-        documents = load_documents("data/raw")
-        reading_end = perf_counter()
-
-        chunks = chunk_documents(documents)
-        chunking_end = perf_counter()
-
-        print(f"Loaded {len(documents)} documents.")
-        print(f"Created {len(chunks)} chunks.")
-        print(f"Reading: {reading_end - start:.2f} seconds")
-        print(f"Chunking: {chunking_end - reading_end:.2f} seconds")
-        print(f"Total: {(chunking_end - start)/60:.2f} minutes")
-
-        for chunk in chunks[:5]:
-            print(
-                chunk.file_path,
-                chunk.first_character_index,
-                chunk.last_character_index,
-                f"{len(chunk.text)} characters",
-            )
-
-        assert all(0 < len(chunk.text) <= 2000 for chunk in chunks)
-
-        print("All chunk sizes are valid.")
-
-    except Exception as error:
-        print(f"Error: {error}")

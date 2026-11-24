@@ -63,15 +63,3 @@ def save_answers(
     )
 
     return output_path
-
-
-if __name__ == "__main__":
-    dataset = load_dataset(
-        "datasets_public/public/UnansweredQuestions/dataset_docs_public.json"
-    )
-
-    print(f"Loaded {len(dataset.rag_questions)} questions.")
-
-    for question in dataset.rag_questions[:3]:
-        print(f"\nID: {question.question_id}")
-        print(f"Question: {question.question}")

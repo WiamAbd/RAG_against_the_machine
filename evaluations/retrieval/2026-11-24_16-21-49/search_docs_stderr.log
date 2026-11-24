@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/__main__.py", line 23, in <module>
+    main()
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/__main__.py", line 13, in main
+    fire.Fire(RagCLI)
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 135, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 468, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/.venv/lib/python3.12/site-packages/fire/core.py", line 684, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/cli.py", line 100, in search_dataset
+    index, chunks = load_index("data/processed")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/Users/wiam/Desktop/42/RAG_against_the_machine/src/indexer.py", line 68, in load_index
+    with index_path.open("rb") as file:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
