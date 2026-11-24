@@ -1,0 +1,42 @@
+{
+  "question_id": "d024dbd4-67dc-4d4d-ba80-87b5e9cee4b4",
+  "question": "How can you scale up vLLM service to multiple replicas in SkyPilot?",
+  "retrieved_sources": [
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/skypilot.md",
+      "first_character_index": 4988,
+      "last_character_index": 6779
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/skypilot.md",
+      "first_character_index": 3273,
+      "last_character_index": 5188
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/skypilot.md",
+      "first_character_index": 1554,
+      "last_character_index": 3473
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/skypilot.md",
+      "first_character_index": 0,
+      "last_character_index": 1754
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/frameworks/skypilot.md",
+      "first_character_index": 6579,
+      "last_character_index": 8424
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/examples/offline_inference/batch_llm_inference.py",
+      "first_character_index": 0,
+      "last_character_index": 1991
+    },
+    {
+      "file_path": "data/raw/vllm-0.10.1/docs/deployment/k8s.md",
+      "first_character_index": 9938,
+      "last_character_index": 11848
+    }
+  ],
+  "answer": "To scale up vLLM service to multiple replicas in SkyPilot, you can add a `replicas` section to the YAML file, specifying the number of replicas and setting the `target_qps_per_replica` to a value that ensures the service scales appropriately. This is done by modifying the `service` section in the YAML configuration file. Additionally, you can use the `replica_policy` to define the minimum and maximum number of replicas and the target QPS per replica."
+}

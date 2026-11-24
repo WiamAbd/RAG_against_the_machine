@@ -92,12 +92,6 @@ def chunk_python(
             ):
                 first_line = node.lineno
 
-                if node.decorator_list:
-                    first_line = min(
-                        first_line,
-                        node.decorator_list[0].lineno,
-                    )
-
                 boundaries.add(line_offsets[first_line - 1])
 
     ordered_boundaries = sorted(boundaries)
