@@ -101,7 +101,7 @@ def chunk_python(
         start = ordered_boundaries[index]
         section_end = ordered_boundaries[index + 1]
 
-        while start < section_end:
+        while True:
             end = min(start + max_chunk_size, section_end)
 
             if end < section_end:
