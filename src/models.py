@@ -12,6 +12,7 @@ class MinimalSource(BaseModel):
     last_character_index: int
 
 
+# parsed classes
 class UnansweredQuestion(BaseModel):
     """Represent a question, generating an ID when none is supplied."""
 
@@ -32,6 +33,7 @@ class RagDataset(BaseModel):
     rag_questions: List[AnsweredQuestion | UnansweredQuestion]
 
 
+# retrieved classes
 class MinimalSearchResults(BaseModel):
     """Store ranked source locations retrieved for one question."""
 
