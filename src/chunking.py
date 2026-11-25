@@ -201,12 +201,6 @@ def add_python_context(
 
         first_line = node.lineno
 
-        if node.decorator_list:
-            first_line = min(
-                first_line,
-                node.decorator_list[0].lineno,
-            )
-
         start = line_offsets[first_line - 1]
         end = line_offsets[node.end_lineno]
 
