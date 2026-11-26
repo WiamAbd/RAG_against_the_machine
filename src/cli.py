@@ -31,7 +31,6 @@ class RagCLI:
         start = perf_counter()
 
         documents = load_documents("data/raw")
-        reading_end = perf_counter()
         print(f"Loaded {len(documents)} documents.")
 
         chunks = chunk_documents(
@@ -39,21 +38,14 @@ class RagCLI:
             max_chunk_size=max_chunk_size,
             min_chunk_size=min(200, max_chunk_size),
         )
-        chunking_end = perf_counter()
         print(f"Created {len(chunks)} chunks.")
 
         bm25_index = build_index(chunks)
-        indexing_end = perf_counter()
 
         save_index(bm25_index, chunks, "data/processed")
         saving_end = perf_counter()
 
-        print(f"Reading: {reading_end - start:.2f} seconds")
-        print(f"Chunking: {chunking_end - reading_end:.2f} seconds")
-        print(f"Index building: {indexing_end - chunking_end:.2f} seconds")
-        print(f"Saving: {saving_end - indexing_end:.2f} seconds")
-        print(f"Total: {saving_end - start:.2f} seconds")
-        print(f"Total: {(saving_end - start)/60:.2f} minutes")
+        print(f"Total indexing time: {(saving_end - start)/60:.2f} minutes")
         print("Index saved to data/processed/bm25.pkl")
 
     def search(self, query: str, k: int = 5) -> None:

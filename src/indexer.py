@@ -56,7 +56,7 @@ def save_index(
     }
 
     with index_path.open("wb") as file:
-        pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(data, file)
 
 
 def load_index(

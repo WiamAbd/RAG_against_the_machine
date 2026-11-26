@@ -128,14 +128,6 @@ def merge_small_chunks(
     min_chunk_size: int = 200,
 ) -> list[Chunk]:
     """Merge adjacent chunks when either is short and their total fits."""
-    if type(max_chunk_size) is not int or type(min_chunk_size) is not int:
-        raise ValueError("Chunk sizes must be integers.")
-
-    if not 1 <= min_chunk_size <= max_chunk_size <= 2000:
-        raise ValueError(
-            "Sizes must satisfy: 1 <= min_chunk_size "
-            "<= max_chunk_size <= 2000."
-        )
 
     merged: list[Chunk] = []
 
@@ -241,7 +233,7 @@ def chunk_documents(
     if type(min_chunk_size) is not int:
         raise ValueError("Chunk sizes must be integers.")
 
-    if not 1 <= min_chunk_size <= 2000:
+    if not 1 <= min_chunk_size <= max_chunk_size:
         raise ValueError(
             "Sizes must satisfy: 1 <= min_chunk_size <= 2000"
         )
