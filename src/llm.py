@@ -10,7 +10,7 @@ from transformers import (
     BatchEncoding,
     logging,
 )
-
+from pathlib import Path
 
 logging.set_verbosity_error()
 
@@ -99,11 +99,14 @@ class Small_LLM_Model:
             )
 
         self._dtype = dtype
-
+        cache_directory = str(
+            Path("/tmp") / f"{Path.home().name}-rag" / "huggingface"
+        )
         self._tokenizer = cast(
             TokenizerInterface,
             AutoTokenizer.from_pretrained(
                 model_name,
+                cache_dir=cache_directory,
                 trust_remote_code=trust_remote_code,
             ),
         )
@@ -117,6 +120,7 @@ class Small_LLM_Model:
             ModelInterface,
             AutoModelForCausalLM.from_pretrained(
                 model_name,
+                cache_dir=cache_directory,
                 torch_dtype=self._dtype,
                 device_map=(
                     "auto" if self._device == "cuda" else None

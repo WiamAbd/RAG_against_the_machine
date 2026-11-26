@@ -1,9 +1,0 @@
-Loaded 1969 documents.
-Created 16537 chunks.
-Reading: 17.44 seconds
-Chunking: 4.43 seconds
-Index building: 0.78 seconds
-Saving: 0.58 seconds
-Total: 23.23 seconds
-Total: 0.39 minutes
-Index saved to data/processed/bm25.pkl

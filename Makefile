@@ -1,18 +1,23 @@
 PYTHON := python
 UV := uv
 SRC := src
+ARGS ?= index 
 
-.PHONY: install run debug clean lint lint-strict
+export UV_CACHE_DIR := /tmp/$(USER)-rag/uv-cache
+export UV_PROJECT_ENVIRONMENT := /tmp/$(USER)-rag/venv
+
+.PHONY: install run debug clean lint
 
 install:
-	mkdir -p /goinfre/wabdella/.uv-cache
-	UV_CACHE_DIR=/goinfre/wabdella/.uv-cache $(UV) sync
+	mkdir -p "$(UV_CACHE_DIR)" "$(UV_PROJECT_ENVIRONMENT)"
+	$(UV) sync
+	ln -sfnT "$(UV_PROJECT_ENVIRONMENT)" .venv
 
 run:
-	$(UV) run $(PYTHON) -m $(SRC)
+	$(UV) run $(PYTHON) -m $(SRC) $(ARGS)
 
 debug:
-	$(UV) run $(PYTHON) -m pdb -m $(SRC)
+	$(UV) run $(PYTHON) -m pdb -m $(SRC) $(ARGS)
 
 lint:
 	$(UV) run flake8 $(SRC)
