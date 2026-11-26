@@ -29,13 +29,13 @@ def retrieve(
     if type(k) is not int or k < 1:
         raise ValueError("k must be a positive integer.")
 
+    if index.corpus_size != len(chunks):
+        raise ValueError("The index and chunks have different sizes.")
+
     query_tokens = tokenize(query)
 
     if not query_tokens:
         raise ValueError("The query must contain searchable terms.")
-
-    if index.corpus_size != len(chunks):
-        raise ValueError("The index and chunks have different sizes.")
 
     scores = index.get_scores(query_tokens)
 

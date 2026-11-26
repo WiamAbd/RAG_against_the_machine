@@ -1,0 +1,4 @@
+Loaded 1969 documents.
+Created 16548 chunks.
+Total indexing time: 1.01 minutes
+Index saved to data/processed/bm25.pkl

@@ -50,6 +50,9 @@ class RagCLI:
 
     def search(self, query: str, k: int = 5) -> None:
         """Retrieve and display the best matching repository chunks."""
+        if type(k) is not int or k < 1:
+            raise ValueError("k must be a positive integer.")
+
         index, chunks = load_index("data/processed")
 
         results = retrieve(
